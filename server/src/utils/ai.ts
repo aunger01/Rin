@@ -13,9 +13,18 @@ const AI_PROVIDER_URLS: Record<string, string> = {
 };
 
 // Cloudflare Worker AI models mapping (short name -> full model ID)
+// NOTE: the upstream list pointed llama-3-8b at "@cf/meta/llama-3-8b-instruct",
+// which Cloudflare deprecated on 2026-05-30. These IDs are verified against the
+// wrangler worker-configuration.d.ts model catalog and are currently served.
 export const WORKER_AI_MODELS: Record<string, string> = {
-    "llama-3-8b": "@cf/meta/llama-3-8b-instruct",
-    "llama-3-1-8b": "@cf/meta/llama-3.1-8b-instruct",
+    "llama-3-8b": "@cf/meta/llama-3.1-8b-instruct-fp8",
+    "llama-3-1-8b": "@cf/meta/llama-3.1-8b-instruct-fp8",
+    "llama-3-2-3b": "@cf/meta/llama-3.2-3b-instruct",
+    "llama-3-3-70b": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    "llama-4-scout": "@cf/meta/llama-4-scout-17b-16e-instruct",
+    "qwen3-30b": "@cf/qwen/qwen3-30b-a3b-fp8",
+    "gpt-oss-20b": "@cf/openai/gpt-oss-20b",
+    // legacy aliases kept for backwards compatibility (some may be deprecated)
     "llama-2-7b": "@cf/meta/llama-2-7b-chat-int8",
     "mistral-7b": "@cf/mistral/mistral-7b-instruct-v0.1",
     "mistral-7b-v2": "@cf/mistral/mistral-7b-instruct-v0.2-lora",
