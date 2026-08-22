@@ -40,8 +40,8 @@ export class GitHubProvider implements OAuthProvider {
 
 export interface OAuth2Utils {
     generateState: () => string;
-    createRedirectUrl: (state: string, providerName: string) => string;
-    authorize: (providerName: string, code?: string) => Promise<OAuthToken>;
+    createRedirectUrl: (state: string, providerName: string, redirectUri?: string) => string;
+    authorize: (providerName: string, code?: string, redirectUri?: string) => Promise<OAuthToken>;
 }
 
 export function createOAuthPlugin(providers: Record<string, OAuthProvider>): OAuth2Utils {
@@ -52,7 +52,7 @@ export function createOAuthPlugin(providers: Record<string, OAuthProvider>): OAu
             return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join("");
         },
         
-        createRedirectUrl: (state: string, providerName: string): string => {
+        createRedirectUrl: (state: string, providerName: string, redirectUri?: string): string => {
             const provider = providers[providerName];
             if (!provider) {
                 throw new Error(`OAuth provider "${providerName}" not found`);
@@ -62,11 +62,14 @@ export function createOAuthPlugin(providers: Record<string, OAuthProvider>): OAu
                 client_id: provider.clientId,
                 state: state,
             });
+            if (redirectUri) {
+                params.set("redirect_uri", redirectUri);
+            }
 
             return `${provider.authorizeUrl}?${params.toString()}`;
         },
 
-        authorize: async (providerName: string, code?: string): Promise<OAuthToken> => {
+        authorize: async (providerName: string, code?: string, redirectUri?: string): Promise<OAuthToken> => {
             const provider = providers[providerName];
             if (!provider) {
                 throw new Error(`OAuth provider "${providerName}" not found`);
@@ -82,7 +85,9 @@ export function createOAuthPlugin(providers: Record<string, OAuthProvider>): OAu
                 code: code,
             });
 
-            if (provider.redirectUri) {
+            if (redirectUri) {
+                params.set("redirect_uri", redirectUri);
+            } else if (provider.redirectUri) {
                 params.set("redirect_uri", provider.redirectUri);
             }
 

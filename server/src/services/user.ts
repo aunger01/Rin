@@ -42,7 +42,10 @@ export function UserService(): Hono {
             path: '/',
         });
 
-        return c.redirect(oauth2.createRedirectUrl(genState, "GitHub"), 302);
+        // GitHub redirect_uri follows the current domain so login works on any custom domain
+        const githubRedirectUri = new URL('/api/user/github/callback', refererUrl.origin).toString();
+
+        return c.redirect(oauth2.createRedirectUrl(genState, "GitHub", githubRedirectUri), 302);
     });
 
     // GET /user/github/callback - GitHub OAuth callback
@@ -69,8 +72,9 @@ export function UserService(): Hono {
         // Clear state cookie
         deleteCookie(c, 'state');
 
-        // Exchange code for access token
-        const gh_token = await profileAsync(c, 'user_oauth_authorize', () => oauth2.authorize("GitHub", query.code));
+        // Exchange code for access token (redirect_uri must match the one sent to GitHub)
+        const githubRedirectUri = new URL('/api/user/github/callback', new URL(c.req.url).origin).toString();
+        const gh_token = await profileAsync(c, 'user_oauth_authorize', () => oauth2.authorize("GitHub", query.code, githubRedirectUri));
         if (!gh_token) {
             throw new BadRequestError('Failed to authorize with GitHub');
         }
