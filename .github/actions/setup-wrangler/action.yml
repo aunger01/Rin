@@ -28,7 +28,7 @@ runs:
         [triggers]
         crons = ["*/20 * * * *"]
 
-        [[ai]]
+        [ai]
         binding = "AI"
 
         [vars]
