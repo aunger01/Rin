@@ -244,6 +244,17 @@ async function generateFeed(env: Env, db: DB, frontendUrl: string, c?: AppContex
             }
         }
 
+        // 正文里的图片可能是相对路径（多域名同源方案），订阅器没有 base，
+        // 必须按当前请求的域名补成绝对地址，否则读者那边图全裂
+        const absoluteBase = c ? new URL(c.req.url).origin : frontendUrl;
+        if (contentHtml) {
+            contentHtml = contentHtml.replace(/(\s(?:src|href))="\/(?!\/)/g, `$1="${absoluteBase}/`);
+        }
+        const coverImage = extractImage(content);
+        const coverImageUrl = coverImage
+            ? new URL(coverImage, absoluteBase).href
+            : undefined;
+
         feed.addItem({
             title: other.title || "No title",
             id: other.id?.toString() || "0",
@@ -256,7 +267,7 @@ async function generateFeed(env: Env, db: DB, frontendUrl: string, c?: AppContex
                     : content,
             content: contentHtml,
             author: user ? [{ name: user.username }] : undefined,
-            image: extractImage(content),
+            image: coverImageUrl,
         });
     }
     

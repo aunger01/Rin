@@ -1,5 +1,6 @@
 import type { ImgHTMLAttributes } from "react";
 import { useImageLoadState } from "../utils/use-image-load-state";
+import { toSameOriginBlobUrl } from "../utils/image-url";
 
 type ImageWithFallbackProps = Omit<
   ImgHTMLAttributes<HTMLImageElement>,
@@ -17,7 +18,9 @@ export function ImageWithFallback({
   src,
   ...props
 }: ImageWithFallbackProps) {
-  const normalizedSrc = src?.trim() || undefined;
+  // 站内图床地址归一为相对路径，让头像/封面/预览跟随当前访问的域名（多域名同源）
+  const rawSrc = src?.trim() || undefined;
+  const normalizedSrc = rawSrc ? toSameOriginBlobUrl(rawSrc) : undefined;
   const { failed, imageRef, loaded, onError, onLoad } = useImageLoadState(normalizedSrc);
   const showFallback = !normalizedSrc || failed;
 

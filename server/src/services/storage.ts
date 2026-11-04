@@ -35,7 +35,9 @@ export function StorageService(): Hono {
         const hashkey = `${hash}.${suffix}`;
         
         try {
-            const result = await profileAsync(c, 'storage_put', () => putStorageObject(env, hashkey, file, file.type, new URL(c.req.url).origin));
+            // 不传 baseUrl：返回相对路径 /api/blob/xxx，图片地址不再绑定上传时的域名
+            // （多域名部署时，浏览器会按当前页面域名补全，天然同源）
+            const result = await profileAsync(c, 'storage_put', () => putStorageObject(env, hashkey, file, file.type));
             return c.json({ url: result.url });
         } catch (e: any) {
             console.error(e.message);

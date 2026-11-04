@@ -18,7 +18,11 @@ export function SiteMeta({ title, description, image, children }: SiteMetaProps)
         : siteConfig.name;
 
     const pageDescription = description || siteConfig.description;
-    const pageImage = stripImageUrlMetadata(image || siteConfig.avatar);
+    const rawImage = stripImageUrlMetadata(image || siteConfig.avatar);
+    // og:image 必须是绝对地址；用当前域名补全，保证副站分享出去也是副站自己的图
+    const pageImage = rawImage
+        ? new URL(rawImage, window.location.origin).href
+        : "";
 
     return (
         <>

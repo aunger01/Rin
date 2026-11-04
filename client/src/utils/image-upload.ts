@@ -1,5 +1,8 @@
 import { client } from "../app/runtime";
 import { encodeBlurhash } from "./blurhash";
+import { toSameOriginBlobUrl } from "./image-url";
+
+export { toSameOriginBlobUrl };
 
 export const DEFAULT_IMAGE_MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -62,7 +65,8 @@ export function parseImageUrlMetadata(url?: string | null) {
     };
   }
 
-  const [src, fragment = ""] = url.split("#", 2);
+  const [rawSrc, fragment = ""] = url.split("#", 2);
+  const src = toSameOriginBlobUrl(rawSrc);
   const params = new URLSearchParams(fragment);
 
   return {
@@ -73,8 +77,13 @@ export function parseImageUrlMetadata(url?: string | null) {
   };
 }
 
+// 注意：刻意保留绝对地址。og:image / RSS / 分享卡片需要绝对 URL，
+// 由调用方按当前 origin 补全，不能在这里提前相对化。
 export function stripImageUrlMetadata(url?: string | null) {
-  return parseImageUrlMetadata(url).src;
+  if (!url) {
+    return "";
+  }
+  return url.split("#", 2)[0];
 }
 
 export function buildMarkdownImage(fileName: string, url: string, metadata: ImageMetadata = {}) {
@@ -226,7 +235,8 @@ export async function enrichMarkdownImageMetadata(content: string): Promise<Mark
         continue;
       }
 
-      const nextUrl = attachImageMetadataToUrl(existing.src, metadata);
+      // 回写时用原始（未相对化）地址，避免把 DB 里的正文悄悄改成相对路径
+      const nextUrl = attachImageMetadataToUrl(stripImageUrlMetadata(rawUrl), metadata);
       const replacement = match.type === "markdown"
         ? `![${match.alt}](${nextUrl})`
         : `<img${match.beforeSrc}src="${nextUrl}"${match.afterSrc}>`;
