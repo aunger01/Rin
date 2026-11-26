@@ -12,7 +12,6 @@ import useTableOfContents from "../hooks/useTableOfContents";
 import { useSiteConfig } from "../hooks/useSiteConfig";
 import { CallbackPage } from "../page/callback";
 import { CompatTasksPage } from "../page/compat-tasks";
-import { Disguise404 } from "../page/disguise404";
 import { ErrorPage } from "../page/error";
 import { FeedPage, TOCHeader } from "../page/feed";
 import { FeedsPage } from "../page/feeds";
@@ -127,9 +126,9 @@ export function AppRoutes() {
         </TipsPage>
       </AppRoute>
 
-      <Route>
-        <Disguise404 />
-      </Route>
+      <AppRoute>
+        <ErrorPage error={t("error.not_found")} />
+      </AppRoute>
     </Switch>
   );
 }
