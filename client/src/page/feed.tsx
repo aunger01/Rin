@@ -18,6 +18,7 @@ import { siteName } from "../utils/constants";
 import { timeago } from "../utils/timeago";
 import { Button } from "../components/button";
 import { Tips } from "../components/tips";
+import { Disguise404 } from "./disguise404";
 import mermaid from "mermaid";
 import { AdjacentSection } from "../components/adjacent_feed.tsx";
 import { stripImageUrlMetadata } from "../utils/image-upload";
@@ -166,7 +167,9 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
         </Helmet>
       )}
       <div className="w-full flex flex-row justify-center ani-show">
-        {error && (
+        {error && error === "Not found" && id !== "about" ? (
+          <Disguise404 />
+        ) : error && (
           <>
             <div className="flex flex-col wauto rounded-2xl bg-w m-2 p-6 items-center justify-center space-y-2">
               <h1 className="text-xl font-bold t-primary">{error}</h1>
