@@ -56,7 +56,10 @@ describe("SitemapService", () => {
     expect(putCalls).toBe(0);
 
     const robots = await requestCtx.app.request("https://blog.example/robots.txt", { method: "GET" }, env);
-    expect(await robots.text()).toContain("Sitemap: https://blog.example/sitemap.xml");
+    const robotsText = await robots.text();
+    expect(robotsText).toContain("User-agent: *");
+    expect(robotsText).toContain("Disallow: /");
+    expect(robotsText).not.toContain("Sitemap:");
     expect(getCalls).toBe(0);
     expect(putCalls).toBe(0);
 
@@ -82,7 +85,10 @@ describe("SitemapService", () => {
     const sitemap = await ctx.app.request("https://other.example/sitemap.xml", { method: "GET" }, env);
     expect(await sitemap.text()).toContain("https://canonical.example/feed/1");
     const robots = await ctx.app.request("https://other.example/robots.txt", { method: "GET" }, env);
-    expect(await robots.text()).toContain("Sitemap: https://canonical.example/sitemap.xml");
+    const robotsText = await robots.text();
+    expect(robotsText).toContain("User-agent: *");
+    expect(robotsText).toContain("Disallow: /");
+    expect(robotsText).not.toContain("Sitemap:");
     expect(keys).toEqual(["cache/sitemap.xml", "cache/robots.txt"]);
 
     cleanupTestDB(ctx.sqlite);
