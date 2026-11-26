@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet";
-import { createPortal } from "react-dom";
 
 // 掩饰页 HTML：与门面 Worker（主站404掩饰/worker.js）内嵌那份完全一致。
 // 由 _tmp_gen_disguise.py 从 worker.js 原样提取；无反引号与 ${} 插值。
@@ -356,13 +355,7 @@ const HTML = `<!DOCTYPE html>
 // 乱路径掩饰页：全屏 iframe（srcdoc）渲染掩饰页，URL 不变、无菜单栏、
 // CSS/脚本隔离在 iframe 内不污染 React 树，盖住底下的 Header/Footer。
 export function Disguise404() {
-  // 关键：必须 portal 到 document.body。
-  // 若在 FeedPage 内部就地渲染，父容器 .ani-show 带 transform，
-  // 会使 position:fixed 退化为相对该容器定位，导致 iframe 被压扁、
-  // 博客的 Header/Footer 仍露在外面——与首页掩饰页效果不一致。
-  // 挂到 body 后 iframe 直接成为顶层兄弟节点，fixed 相对视口，
-  // 100vw/100vh + 最高 zIndex 完全盖住整站外壳，用户被拦在外面。
-  return createPortal(
+  return (
     <>
       <Helmet>
         <title>404 · 页面不存在</title>
@@ -381,10 +374,8 @@ export function Disguise404() {
           border: 0,
           display: "block",
           zIndex: 2147483647,
-          background: "#06070b",
         }}
       />
-    </>,
-    document.body
+    </>
   );
 }
