@@ -13,17 +13,23 @@ const AI_PROVIDER_URLS: Record<string, string> = {
 };
 
 // Cloudflare Worker AI models mapping (short name -> full model ID)
-// NOTE: the upstream list pointed llama-3-8b at "@cf/meta/llama-3-8b-instruct",
-// which Cloudflare deprecated on 2026-05-30. These IDs are verified against the
-// wrangler worker-configuration.d.ts model catalog and are currently served.
+// NOTE: Cloudflare deprecated a batch of models on 2026-11-20, including
+// llama-3.1-8b-instruct-fp8, llama-3.2-3b/1b-instruct and qwen3-30b-a3b-fp8.
+// Alias names are kept stable so existing saved configs keep working; only the
+// resolved IDs below change. Replacements verified against the official model
+// catalog on 2026-11-26 (all available, free-tier, chat/messages compatible):
+//   llama-3.1-8b-instruct-fp8 -> glm-4.7-flash (best Chinese summarization)
+//   llama-3.2-3b-instruct     -> granite-4.0-h-micro (cheap, fast, 131k ctx)
+//   qwen3-30b-a3b-fp8         -> qwen3.8-27b (newest Qwen family)
 export const WORKER_AI_MODELS: Record<string, string> = {
-    "llama-3-8b": "@cf/meta/llama-3.1-8b-instruct-fp8",
-    "llama-3-1-8b": "@cf/meta/llama-3.1-8b-instruct-fp8",
-    "llama-3-2-3b": "@cf/meta/llama-3.2-3b-instruct",
+    "llama-3-8b": "@cf/zai-org/glm-4.7-flash",
+    "llama-3-1-8b": "@cf/zai-org/glm-4.7-flash",
+    "llama-3-2-3b": "@cf/ibm-granite/granite-4.0-h-micro",
     "llama-3-3-70b": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     "llama-4-scout": "@cf/meta/llama-4-scout-17b-16e-instruct",
-    "qwen3-30b": "@cf/qwen/qwen3-30b-a3b-fp8",
+    "qwen3-30b": "@cf/qwen/qwen3.8-27b",
     "gpt-oss-20b": "@cf/openai/gpt-oss-20b",
+    "glm-4.7-flash": "@cf/zai-org/glm-4.7-flash",
     // legacy aliases kept for backwards compatibility (some may be deprecated)
     "llama-2-7b": "@cf/meta/llama-2-7b-chat-int8",
     "mistral-7b": "@cf/mistral/mistral-7b-instruct-v0.1",
