@@ -16,8 +16,11 @@ export async function handleScheduled(
   const { friendCrontab } = await import("../services/friends");
   const { rssCrontab } = await import("../services/rss");
   const { sitemapCrontab } = await import("../services/sitemap");
+  const { validPathsCrontab } = await import("../services/valid-paths");
 
   await friendCrontab(env, ctx, db, cache, serverConfig, clientConfig);
   await rssCrontab(env, db);
   await sitemapCrontab(env, db);
+  // 生成服务端路径判断用的完整合法清单（draft=0，含 unlisted），写 R2 供读取
+  await validPathsCrontab(env, db);
 }

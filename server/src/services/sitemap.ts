@@ -113,20 +113,11 @@ async function generateSitemapXml(env: Env, db: DB, requestUrl?: string): Promis
 }
 
 // 生成 robots.txt 内容
-function generateRobotsTxt(env: Env, requestUrl?: string): string {
-  const baseUrl = getBaseUrl(env, requestUrl);
-  if (!baseUrl) {
-    throw new Error("A canonical URL or request URL is required to generate robots.txt");
-  }
+function generateRobotsTxt(_env: Env, _requestUrl?: string): string {
+  // 个人博客不对外开放抓取：全站禁抓，且不再向外暴露 sitemap 指向。
+  // 参数仅为兼容调用签名保留，内容不再依赖站点地址。
   return `User-agent: *
-Allow: /
-
-Disallow: /admin/
-Disallow: /profile/
-Disallow: /login/
-Disallow: /search/
-
-Sitemap: ${baseUrl}/sitemap.xml
+Disallow: /
 `;
 }
 
